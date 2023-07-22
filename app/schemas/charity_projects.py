@@ -32,6 +32,9 @@ class CharityProjectUpdate(BaseModel):
     description: Optional[str]
     fuul_amount: Optional[PositiveInt]
 
+    class Config:
+        min_anystr_length = 1
+
 
 # создаем схему, которая описывает объект
 # проекта пожертвований, полученный из БД
