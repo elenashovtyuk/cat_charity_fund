@@ -1,7 +1,9 @@
 # app/crud/base.py
+from typing import Optional
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.models import User
 
 
 # базовый crud-класс, в котором будут реализованы все основные функции
@@ -32,26 +34,23 @@ class CRUDBase:
         db_objs = await session.execute(select(self.model))
         return db_objs.scalars().all()
 
+    # создать новый объект
     async def create(
             self,
             obj_in,
             session: AsyncSession,
+            # добавим опциональный параметр user
+            user: Optional[User] = None
     ):
-        # чтобы передатьполученные в запросе данные из Pydantic-схемы в ORM-модель
-        # потребуется конвертровать схему в словарь
-        # преобразуем схему в словарь можно с помощью метода dict()
         obj_in_data = obj_in.dict()
-        # создаем объект модели(для этого распаковываем словарь с полученными даныыми)
-        # т.е передаем пары ключ-значение для того, чтобы создать
-        # экземпляр ORM-модели
+        # если пользователь был передан, то
+        if user is not None:
+            # то дополнить словарь для создания модели
+            obj_in_data['user_id'] = user.id
         db_obj = self.model(**obj_in_data)
-        # созданный объект добавляем в сессию
         session.add(db_obj)
-        # записываем данные непосредственно в БД
         await session.commit()
-        # обновляем объект db_obj
         await session.refresh(db_obj)
-        # возвращаем только что созданный объект проекта пожертвований
         return db_obj
 
     async def update(
