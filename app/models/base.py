@@ -21,7 +21,7 @@ class InvestBaseModel(Base):
         # что сумма пожертвований меньше требуемой суммы сбора
         CheckConstraint('invested_amount < full_amount'),
         # что сумма пожертвований больше нуля
-        CheckConstraint('invested_amount > 0')
+        CheckConstraint('invested_amount >= 0')
     )
     """Базовый абстрактный класс для моделей проектов и пожертвований."""
     # здесь укажем общие поля для моделей проекты и пожертвования
