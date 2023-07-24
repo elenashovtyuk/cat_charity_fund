@@ -1,35 +1,37 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends
 from app.core.db import get_async_session
-# from app.models.charity_projects import CharityProject
+from app.models.charity_projects import CharityProject
 from app.schemas.charity_projects import CharityProjectDB, CharityProjectCreate, CharityProjectUpdate
 from app.crud.charity_projects import charity_project_crud
 from app.api.validators import check_charity_project_exists, check_name_duplicate
 from typing import List
-
+from app.core.user import current_superuser
 router = APIRouter()
 
 
 # опишем эндпоинт для операции POST
 @router.post(
-    '/charity_project/',
-    response_model=CharityProjectDB)
-# API-функция, обработчик запроса
-# эта функция будет использовать асинхронную crud-функцию
-# поэтому она и сама должна быть асинхронной
+    '/',
+    response_model=CharityProjectDB,
+    response_model_exclude_none=True,
+    dependencies=[Depends(current_superuser)],
+)
 async def create_new_charity_project(
-    # укажем схему
-    charity_project: CharityProjectCreate,
-    session: AsyncSession = Depends(get_async_session)
+        # укажем схему для создания нового проекта
+        charity_project: CharityProjectCreate,
+        session: AsyncSession = Depends(get_async_session),
 ):
+
     """Обработка запроса на создание нового проекта пожертвований."""
+    await check_name_duplicate(charity_project.name, session)
     new_charity_project = await charity_project_crud.create(charity_project, session)
     return new_charity_project
 
 
 # опишем эндпоинт для операции GET
 @router.get(
-    '/сharity_project/',
+    '/',
     response_model=List[CharityProjectDB],
 )
 async def get_all_charity_projecs(
