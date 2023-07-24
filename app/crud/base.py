@@ -43,9 +43,9 @@ class CRUDBase:
     ):
         obj_in_data = obj_in.dict()
         # если пользователь был передан, то
-        if user is not None:
+        if user:
             # то дополнить словарь для создания модели
-            obj_in_data['user_id'] == user.id
+            obj_in_data['user_id'] = user.id
         db_obj = self.model(**obj_in_data)
 
         session.add(db_obj)

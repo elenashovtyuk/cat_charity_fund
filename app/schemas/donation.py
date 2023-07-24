@@ -44,10 +44,15 @@ class DonationRead(DonationBase):
     Схема для получения всех пожертвований пользователя, сделавшего запрос.
     """
     id: int
+    user_id: int
+    invested_amount: int
+    fully_invested: bool
     create_date: datetime
+    close_time: Optional[datetime]
 
     # добавляем подкласс Config с аттрибутом schema_extra
     class Config:
+        orm_model = True
         schema_extra = {
             'example': {
                 'full_amount': 1000,

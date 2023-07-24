@@ -54,7 +54,7 @@ def upgrade():
     sa.Column('comment', sa.Text(), nullable=True),
     sa.CheckConstraint('full_amount > 0'),
     sa.CheckConstraint('invested_amount < full_amount'),
-    sa.CheckConstraint('invested_amount > 0'),
+    sa.CheckConstraint('invested_amount >= 0'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
