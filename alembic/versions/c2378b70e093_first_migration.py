@@ -1,7 +1,7 @@
 """First migration
 
 Revision ID: c2378b70e093
-Revises: 
+Revises:
 Create Date: 2023-07-22 02:03:10.187091
 
 """
@@ -29,7 +29,7 @@ def upgrade():
     sa.Column('description', sa.Text(), nullable=False),
     sa.CheckConstraint('full_amount > 0'),
     sa.CheckConstraint('invested_amount < full_amount'),
-    sa.CheckConstraint('invested_amount > 0'),
+    sa.CheckConstraint('invested_amount >= 0'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('name')
     )
