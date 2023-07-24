@@ -30,8 +30,9 @@ async def check_name_duplicate(
     """
     Валидатор, который проверяет, существует ли проект с указанным именем.
     """
-    project_id = await charity_project_crud.get_charity_project_id_by_name(project_name, session)
-    if project_id is not None:
+    project_id = await charity_project_crud.get_charity_project_id_by_name(
+        project_name, session)
+    if project_id:
         raise HTTPException(
             status_code=422,
             detail='Проект с таким именем уже существует!',
