@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-
+from app.core.init_db import create_first_superuser
 # импортируем настройки проекта из config.py
 from app.core.config import settings
 from app.api.routers import main_router
@@ -14,3 +14,9 @@ app = FastAPI(
 
 # подключаем главный роутер
 app.include_router(main_router)
+
+
+# При старте приложения запускаем корутину create_first_superuser.
+@app.on_event('startup')
+async def startup():
+    await create_first_superuser()
