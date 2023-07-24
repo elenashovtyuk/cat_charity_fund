@@ -8,15 +8,22 @@ from typing import Optional
 
 
 # схема для создания проекта пожертвований
-# допюсвойства полей прописываем с помощью класса Field
+# доп.свойства полей прописываем с помощью класса Field
 
 class CharityProjectCreate(BaseModel):
     """Схема для создания нового проекта пожертвований."""
     name: str = Field(..., max_length=100)
     description: str
-    fuul_amount: PositiveInt
+    full_amount: PositiveInt
 
     class Config:
+        schema_extra = {
+            'example': {
+                'name': 'QRKot',
+                'description': 'На вкусняшки котикам',
+                'full_amount': 2500,
+            }
+        }
         min_anystr_length = 1
 
 
@@ -30,7 +37,7 @@ class CharityProjectUpdate(BaseModel):
     """
     name: Optional[str] = Field(..., max_length=100)
     description: Optional[str]
-    fuul_amount: Optional[PositiveInt]
+    full_amount: Optional[PositiveInt]
 
     class Config:
         min_anystr_length = 1
@@ -43,9 +50,9 @@ class CharityProjectUpdate(BaseModel):
 class CharityProjectDB(CharityProjectCreate):
     id: int
     invested_amount: int
-    fully_invested: int
+    fully_invested: bool
     create_date: datetime
-    close_date: datetime
+    close_date: Optional[datetime]
 
     class Config:
         orm_mode = True
