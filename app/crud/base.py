@@ -1,4 +1,3 @@
-# app/crud/base.py
 from typing import Optional
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
@@ -46,8 +45,9 @@ class CRUDBase:
         # если пользователь был передан, то
         if user is not None:
             # то дополнить словарь для создания модели
-            obj_in_data['user_id'] = user.id
+            obj_in_data['user_id'] == user.id
         db_obj = self.model(**obj_in_data)
+
         session.add(db_obj)
         await session.commit()
         await session.refresh(db_obj)
