@@ -10,7 +10,14 @@ from app.models import User
 from app.schemas.donation import DonationCreate, DonationRead
 from app.core.user import current_superuser, current_user
 from typing import List
-# from app.services.investing import investing
+from app.services.investing import investing
+from app.services.investing import (
+    investing,
+    get_uninvested_objects,
+)
+from app.api.exceptions import MyException
+from sqlalchemy.exc import IntegrityError
+
 
 # создаем объект роутера
 router = APIRouter()
@@ -95,12 +102,12 @@ async def create_donation(
         session,
         user
     )
-#     # при создании нового пожертвования должен запускаться процесс инвестирования
-#     # увеличение внесенной суммы пожертвований(invested_amount),
-#     #  установка значений fully_invested (собрана или нет нужная сумма)
-#     # и даты закрытия сбора (close_date) - (при необходимости)
-#     session.add_all(await investing(session, new_donation))
-#     await session.commit()
-#     await session.refresh(new_donation)
-    # возвращается новый объект пожертвования
+    open_projects = await get_uninvested_objects(CharityProject, session)
+    try:
+        investing(opened_objects=open_projects, funds=new_donation)
+        await session.commit()
+        await session.refresh(new_donation)
+    except IntegrityError:
+        await session.rollback()
+        raise MyException('Средства уже распределены')
     return new_donation
