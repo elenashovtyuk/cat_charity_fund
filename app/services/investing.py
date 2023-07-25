@@ -1,41 +1,49 @@
-# from app.models.base import InvestBaseModel
-# from app.core.db import get_async_session
-# from fastapi import Depends
-# from sqlalchemy.ext.asyncio import  AsyncSession
-# from datetime import datetime
-# from app.models.base import InvestBaseModel
-# from typing import List, Optional
+from datetime import datetime
+from typing import List, Optional, Type, Union
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models import CharityProject, Donation
+
+ComplexTypeObjects = Union[Donation, CharityProject]
+
+# функция процесса инвестирования
+def investing(
+        opened_objects: Optional[List[ComplexTypeObjects]],
+        funds: ComplexTypeObjects,
+) -> ComplexTypeObjects:
+    if opened_objects:
+        for item in opened_objects:
+            funds_diff = funds.full_amount - funds.invested_amount
+            item_diff = item.full_amount - item.invested_amount
+            if funds_diff >= item_diff:
+                funds.invested_amount += item_diff
+                item.invested_amount = item.full_amount
+                close_obj(item)
+                if funds_diff == item_diff:
+                    close_obj(funds)
+            else:
+                item.invested_amount += funds_diff
+                funds.invested_amount = funds.full_amount
+                close_obj(funds)
+                break
+    return funds
 
 
-# # создаем корутину, которая будет отвечать за процесс инвестирования
-# # далее эту корутину будем вызывать при создании нового проекта или пожертвования
-# # то есть, в API-функциях эндпоинтов для создания новых проектов или пожертвований
-# async def investing(
-#     session: AsyncSession,
-#     base_model: InvestBaseModel
-# ) -> List[Optional(InvestBaseModel)]:
-#     pass
+def close_obj(item: ComplexTypeObjects) -> ComplexTypeObjects:
+    item.fully_invested = True
+    item.close_date = datetime.now()
+    return item
 
 
-
-
-
-
-
-
-
-
-
-
-# def close_donation_of_project(*objs: InvestBaseModel, session: AsyncSession) -> None:
-#     for obj in objects:
-#         # проверяем, что внесенная сумма меньше, чем требуемая сумма сбора
-#         if obj.invested_amount < obj.full_amount:
-#             continue
-#         # если же внесенная сумма стала равна требуемой сумме сбора
-#         # то булево значение fully_invested становится True -
-#         # то есть, нужная сумма набрана
-#         obj.fully_invested = True
-#         # после чего устанавливается дата закрытия проекта
-#         obj.close_date = datetime.now()
-#         session.add(obj)
+async def get_uninvested_objects(
+        obj_model: Type[ComplexTypeObjects],
+        session: AsyncSession,
+) -> Optional[List[ComplexTypeObjects]]:
+    uninvested_objects = await session.execute(
+        select(obj_model).where(
+            obj_model.fully_invested == 0
+        ).order_by(obj_model.create_date)
+    )
+    return uninvested_objects.scalars().all()
