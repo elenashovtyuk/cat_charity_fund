@@ -25,4 +25,4 @@ class CRUDDonation(CRUDBase):
         return reservations.scalars().all()
 
 
-donation_crud = CRUDBase(Donation)
+donation_crud = CRUDDonation(Donation)

@@ -52,7 +52,7 @@ class DonationRead(DonationBase):
 
     # добавляем подкласс Config с аттрибутом schema_extra
     class Config:
-        orm_model = True
+        orm_mode = True
         schema_extra = {
             'example': {
                 'full_amount': 1000,
@@ -63,30 +63,30 @@ class DonationRead(DonationBase):
         }
 
 
-# схема для получения списка всех пожертвований
-# наследуем от схемы DonationRead, так как она включает в себя
-# аттрибуты базовой схемы, а также два дполонительных аттрибута
-# которые также должны быть и у текущей схемы
-# соблюдение принципа DRY
-class DonationReadAll(DonationRead):
-    """Схема для получения всех пожертвований."""
-    user_id: int
-    invested_amount: NonNegativeInt
-    fully_invested: bool
-    close_date: datetime
+# # схема для получения списка всех пожертвований
+# # наследуем от схемы DonationRead, так как она включает в себя
+# # аттрибуты базовой схемы, а также два дполонительных аттрибута
+# # которые также должны быть и у текущей схемы
+# # соблюдение принципа DRY
+# class DonationReadAll(DonationRead):
+#     """Схема для получения всех пожертвований."""
+#     user_id: int
+#     invested_amount: NonNegativeInt
+#     fully_invested: bool
+#     close_date: datetime
 
-    # добавляем подкласс Config c аттрибутом schema_extra
-    # который позволяет добавить пример запроса
-    class Config:
-        schema_extra = {
-            'example': {
-                'full_amount': 1000,
-                'comment': 'QRKot',
-                'id': 1,
-                'create_date': "2019-08-24T14:15:22Z",
-                'user_id': 1,
-                'invested_amount': 10000,
-                'fully_invested': True,
-                'close_date': "2019-08-24T14:15:22Z"
-            }
-        }
+#     # добавляем подкласс Config c аттрибутом schema_extra
+#     # который позволяет добавить пример запроса
+#     class Config:
+#         schema_extra = {
+#             'example': {
+#                 'full_amount': 1000,
+#                 'comment': 'QRKot',
+#                 'id': 1,
+#                 'create_date': "2019-08-24T14:15:22Z",
+#                 'user_id': 1,
+#                 'invested_amount': 10000,
+#                 'fully_invested': True,
+#                 'close_date': "2019-08-24T14:15:22Z"
+#             }
+#         }

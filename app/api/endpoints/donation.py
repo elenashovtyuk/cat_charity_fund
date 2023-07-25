@@ -7,7 +7,7 @@ from app.crud.donation import donation_crud
 # имопртируем модель
 # from app.models.donation import Donation
 from app.models import User
-from app.schemas.donation import DonationCreate, DonationRead, DonationReadAll
+from app.schemas.donation import DonationCreate, DonationRead
 from app.core.user import current_superuser, current_user
 from typing import List
 # from app.services.investing import investing
@@ -21,7 +21,7 @@ router = APIRouter()
 @router.get(
     '/',
     # укажем схему ответа на запрос - должен вернуться список пожертвований
-    response_model=List[DonationReadAll],
+    response_model=List[DonationRead],
     response_model_exclude_none=True,
     # запросить список всех пожертвований может только суперюзер
     dependencies=[Depends(current_superuser)],
@@ -37,7 +37,7 @@ async def get_all_donations(
 @router.get(
     '/my',
     # укажем схему ответа
-    response_model=List[DonationReadAll],
+    response_model=List[DonationRead],
     # исключим пустые поля из ответа
     response_model_exclude_none=True,
     # текущий пользователь может запросить инфо о своих пожертвованиях
