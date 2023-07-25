@@ -1,12 +1,21 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends
 from app.core.db import get_async_session
+from app.models.donation import Donation
 from app.models.charity_projects import CharityProject
 from app.schemas.charity_projects import CharityProjectDB, CharityProjectCreate, CharityProjectUpdate
 from app.crud.charity_projects import charity_project_crud
 from app.api.validators import check_charity_project_exists, check_name_duplicate
 from typing import List
 from app.core.user import current_superuser
+from app.services import investing
+from app.services.investing import (
+    investing,
+    get_uninvested_objects,
+)
+from app.api.exceptions import MyException
+from sqlalchemy.exc import IntegrityError
+
 router = APIRouter()
 
 
@@ -25,6 +34,17 @@ async def create_new_charity_project(
     """Только для суперюзеров."""
     await check_name_duplicate(charity_project.name, session)
     new_charity_project = await charity_project_crud.create(charity_project, session)
+    donations = await get_uninvested_objects(Donation, session)
+    try:
+        investing(
+            opened_objects=donations, funds=new_charity_project
+        )
+        await session.commit()
+        await session.refresh(new_charity_project)
+    except IntegrityError:
+        await session.rollback()
+        raise MyException('Средства уже распределены')
+
     return new_charity_project
 
 
