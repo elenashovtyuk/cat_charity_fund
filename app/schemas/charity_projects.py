@@ -3,7 +3,7 @@
 # чтобы легче было ориентироваться в названии схемы будем указывать
 # ее назначение
 from datetime import datetime
-from pydantic import BaseModel, Field, PositiveInt
+from pydantic import BaseModel, Extra, Field, PositiveInt
 from typing import Optional
 
 
@@ -17,6 +17,7 @@ class CharityProjectCreate(BaseModel):
     full_amount: PositiveInt
 
     class Config:
+        extra = Extra.forbid
         schema_extra = {
             'example': {
                 'name': 'QRKot',

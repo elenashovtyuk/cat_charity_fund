@@ -30,14 +30,18 @@ class InvestBaseModel(Base):
     full_amount = Column(Integer, nullable=False)
     # внесенная сумма, целочисленное поле,
     # значение по умолчанию 0
-    invested_amount = Column(Integer, default=DEFAULT_INVESTING_AMOUNT)
+    invested_amount = Column(
+        Integer,
+        nullable=False,
+        default=DEFAULT_INVESTING_AMOUNT
+    )
     # поле fully_invested - булево значение
     # указывает на то, собрана ли нужная сумма для проекта
     # по умолчанию False
-    fully_invested = Column(Boolean, default=False)
+    fully_invested = Column(Boolean, nullable=False, default=False)
     # поле create_date - дата создания проекта,
     # можно добавлять автоматически в момент создания проекта
-    create_date = Column(DateTime, default=datetime.utcnow())
+    create_date = Column(DateTime, nullable=False, default=datetime.now)
     # поле close_date - дата закрытия проекта, DateTime,
     # проставляется автоматически в момент набора нужной суммы
     close_date = Column(DateTime)

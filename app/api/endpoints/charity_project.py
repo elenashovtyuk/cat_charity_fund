@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends
 from app.core.db import get_async_session
 from app.models.donation import Donation
-from app.models.charity_projects import CharityProject
+# from app.models.charity_projects import CharityProject
 from app.schemas.charity_projects import CharityProjectDB, CharityProjectCreate, CharityProjectUpdate
 from app.crud.charity_projects import charity_project_crud
 from app.api.validators import check_charity_project_exists, check_name_duplicate
@@ -44,7 +44,6 @@ async def create_new_charity_project(
     except IntegrityError:
         await session.rollback()
         raise MyException('Средства уже распределены')
-
     return new_charity_project
 
 
