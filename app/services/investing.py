@@ -14,6 +14,7 @@ def investing(
         opened_objects: Optional[List[ComplexTypeObjects]],
         funds: ComplexTypeObjects,
 ) -> ComplexTypeObjects:
+    """Функция процесса инвестирования."""
     if opened_objects:
         for item in opened_objects:
             funds_diff = funds.full_amount - funds.invested_amount
