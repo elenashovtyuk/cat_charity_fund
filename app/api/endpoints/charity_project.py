@@ -3,7 +3,11 @@ from fastapi import APIRouter, Depends
 from app.core.db import get_async_session
 from app.models.donation import Donation
 # from app.models.charity_projects import CharityProject
-from app.schemas.charity_project import CharityProjectDB, CharityProjectCreate, CharityProjectUpdate
+from app.schemas.charity_project import (
+    CharityProjectDB,
+    CharityProjectCreate,
+    CharityProjectUpdate
+)
 from app.crud.charity_project import charity_project_crud
 from app.api.validators import (
     check_charity_project_exists,
@@ -18,7 +22,7 @@ from app.services import investing
 from app.services.investing import (
     investing,
     get_uninvested_objects,
-    # close_obj
+    close_obj
 )
 from app.api.exceptions import MyException
 from sqlalchemy.exc import IntegrityError
@@ -103,10 +107,10 @@ async def partially_update_charity_project(
     charity_project = await charity_project_crud.update(
         charity_project, obj_in, session
     )
-    # if obj_in.full_amount == charity_project.invested_amount:
-    #     close_obj(charity_project)
-    #     await session.commit()
-    #     await session.refresh(charity_project)
+    if obj_in.full_amount == charity_project.invested_amount:
+        close_obj(charity_project)
+        await session.commit()
+        await session.refresh(charity_project)
 
     # возвращаем измененный проект пожертвований
     return charity_project
