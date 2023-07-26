@@ -19,7 +19,7 @@ class InvestBaseModel(Base):
         # что сумма пожертвований больше 0
         CheckConstraint('full_amount > 0'),
         # что сумма пожертвований меньше требуемой суммы сбора
-        CheckConstraint('invested_amount < full_amount'),
+        CheckConstraint('invested_amount <= full_amount'),
         # что сумма пожертвований больше нуля
         CheckConstraint('invested_amount >= 0')
     )

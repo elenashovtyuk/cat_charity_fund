@@ -1,11 +1,12 @@
 from app.crud.base import CRUDBase
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.charity_projects import CharityProject
+from app.models.charity_project import CharityProject
 from typing import Optional
 from sqlalchemy import select
 
 
 class CRUDCharityProject(CRUDBase):
+
     async def get_charity_project_id_by_name(
         self,
         charity_project_name: str,

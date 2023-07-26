@@ -3,8 +3,8 @@ from fastapi import APIRouter, Depends
 from app.core.db import get_async_session
 from app.models.donation import Donation
 # from app.models.charity_projects import CharityProject
-from app.schemas.charity_projects import CharityProjectDB, CharityProjectCreate, CharityProjectUpdate
-from app.crud.charity_projects import charity_project_crud
+from app.schemas.charity_project import CharityProjectDB, CharityProjectCreate, CharityProjectUpdate
+from app.crud.charity_project import charity_project_crud
 from app.api.validators import check_charity_project_exists, check_name_duplicate
 from typing import List
 from app.core.user import current_superuser
@@ -85,6 +85,7 @@ async def partially_update_charity_project(
     # что это название уникально
     if obj_in.name is not None:
         await check_name_duplicate(obj_in.name, session)
+
     # далее, если проверки прошли, вызываем crud-функцию update
     # т.е вносим изменения в указанный проект пожертвований
     # в параметрах указываем проект, который нужно изменить

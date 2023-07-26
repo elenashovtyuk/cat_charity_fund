@@ -28,7 +28,7 @@ def upgrade():
     sa.Column('name', sa.String(length=100), nullable=False),
     sa.Column('description', sa.Text(), nullable=False),
     sa.CheckConstraint('full_amount > 0'),
-    sa.CheckConstraint('invested_amount < full_amount'),
+    sa.CheckConstraint('invested_amount <= full_amount'),
     sa.CheckConstraint('invested_amount >= 0'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('name')
@@ -53,7 +53,7 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('comment', sa.Text(), nullable=True),
     sa.CheckConstraint('full_amount > 0'),
-    sa.CheckConstraint('invested_amount < full_amount'),
+    sa.CheckConstraint('invested_amount <= full_amount'),
     sa.CheckConstraint('invested_amount >= 0'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
