@@ -107,13 +107,21 @@ class CharityProjectCreate(CharityProjectUpdate):
 # наследуем ее от схемы для создания нового проекта, чтобы не дублировать
 # код с повторяющимися полями(name, description, fuul_amount)
 class CharityProjectDB(CharityProjectCreate):
-    id: int
+    id: int = Field(
+        ...,
+        title='Порядковый номер'
+    )
     invested_amount: int = Field(
         DEFAULT_INVESTING_AMOUNT
     )
     fully_invested: bool = Field(False)
-    create_date: datetime
-    close_date: Optional[datetime] = Field(None)
+    create_date: datetime = Field(
+        ...,
+        title='Дата открытия проекта'
+    )
+    close_date: Optional[datetime] = Field(
+        None,
+        title='Дата закрытия проекта')
 
     class Config:
         orm_mode = True

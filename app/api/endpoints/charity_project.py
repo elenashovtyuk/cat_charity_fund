@@ -62,6 +62,7 @@ async def create_new_charity_project(
 @router.get(
     '/',
     response_model=List[CharityProjectDB],
+    response_model_exclude_none=True
 )
 async def get_all_charity_projecs(
     session: AsyncSession = Depends(get_async_session)
