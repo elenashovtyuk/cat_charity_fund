@@ -1,6 +1,5 @@
 from sqlalchemy import Column, String, Text
 
-# импортируем родительский класс для моделей
 from .base import InvestBaseModel
 
 

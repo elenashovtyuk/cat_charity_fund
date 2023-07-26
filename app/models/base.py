@@ -9,7 +9,7 @@ from app.core.db import Base
 class InvestBaseModel(Base):
     """
     Абстрактный базовая модель для моделей
-    CharityProject и Donation.
+    проектов и пожертвований.
     """
     __abstract__ = True
     __table_args__ = (
