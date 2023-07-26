@@ -3,16 +3,21 @@
 # чтобы легче было ориентироваться в названии схемы будем указывать
 # ее назначение
 from datetime import datetime
-from pydantic import BaseModel, Extra, Field, PositiveInt
+from pydantic import BaseModel, Extra, Field, PositiveInt, validator
 from typing import Optional
-
+from app.constants import MAX_LENGTH, MIN_LENGTH
 
 # схема для создания проекта пожертвований
 # доп.свойства полей прописываем с помощью класса Field
 
+
 class CharityProjectCreate(BaseModel):
     """Схема для создания нового проекта пожертвований."""
-    name: str = Field(..., max_length=100)
+    name: str = Field(
+        ...,
+        min_length=MIN_LENGTH,
+        max_length=MAX_LENGTH
+    )
     description: str
     full_amount: PositiveInt
 
@@ -41,6 +46,18 @@ class CharityProjectUpdate(BaseModel):
 
     class Config:
         min_anystr_length = 1
+
+    @validator('name')
+    def name_cannot_be_null(cls, value: str):
+        if not value:
+            raise ValueError('Название проекта не может быть пустым!')
+        return value
+
+    @validator('description')
+    def description_cannot_be_null(cls, value: str):
+        if not value:
+            raise ValueError('Описание проекта не может быть пустым!')
+        return value
 
 
 # создаем схему, которая описывает объект
