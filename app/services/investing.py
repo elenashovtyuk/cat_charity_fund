@@ -8,6 +8,7 @@ from app.models import CharityProject, Donation
 
 ComplexTypeObjects = Union[Donation, CharityProject]
 
+
 # функция процесса инвестирования
 def investing(
         opened_objects: Optional[List[ComplexTypeObjects]],
