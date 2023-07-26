@@ -25,7 +25,6 @@ class CharityProjectCreate(BaseModel):
                 'full_amount': 2500,
             }
         }
-        min_anystr_length = 1
 
 
 # создаем схему для обновления проекта пожертвований

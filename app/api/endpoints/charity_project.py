@@ -5,13 +5,20 @@ from app.models.donation import Donation
 # from app.models.charity_projects import CharityProject
 from app.schemas.charity_project import CharityProjectDB, CharityProjectCreate, CharityProjectUpdate
 from app.crud.charity_project import charity_project_crud
-from app.api.validators import check_charity_project_exists, check_name_duplicate
+from app.api.validators import (
+    check_charity_project_exists,
+    check_name_duplicate,
+    check_invested_amount,
+    check_investing_funds,
+    check_project_open
+)
 from typing import List
 from app.core.user import current_superuser
 from app.services import investing
 from app.services.investing import (
     investing,
     get_uninvested_objects,
+    # close_obj
 )
 from app.api.exceptions import MyException
 from sqlalchemy.exc import IntegrityError
@@ -81,10 +88,13 @@ async def partially_update_charity_project(
     charity_project = await check_charity_project_exists(
         charity_project_id, session
     )
+    await check_project_open(charity_project_id, session)
     # если в переданных пользователем данных есть название проекта, то проверяем
     # что это название уникально
-    if obj_in.name is not None:
+    if obj_in.name:
         await check_name_duplicate(obj_in.name, session)
+    if obj_in.full_amount:
+        await check_investing_funds(charity_project_id, obj_in.full_amount, session)
 
     # далее, если проверки прошли, вызываем crud-функцию update
     # т.е вносим изменения в указанный проект пожертвований
@@ -93,6 +103,11 @@ async def partially_update_charity_project(
     charity_project = await charity_project_crud.update(
         charity_project, obj_in, session
     )
+    # if obj_in.full_amount == charity_project.invested_amount:
+    #     close_obj(charity_project)
+    #     await session.commit()
+    #     await session.refresh(charity_project)
+
     # возвращаем измененный проект пожертвований
     return charity_project
 
@@ -114,6 +129,7 @@ async def remove_charity_project(
     charity_project = await check_charity_project_exists(
         charity_project_id, session
     )
+    await check_invested_amount(charity_project_id, session)
     charity_project = await charity_project_crud.remove(
         charity_project, session
     )
