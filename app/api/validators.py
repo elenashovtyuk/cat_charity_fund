@@ -6,7 +6,6 @@ from app.crud.charity_project import charity_project_crud
 from app.models import CharityProject
 
 
-# код проверки вынесем в отдельную корутину в  файле валидаторов
 async def check_charity_project_exists(
         charity_project_id: int,
         session: AsyncSession,
@@ -23,7 +22,6 @@ async def check_charity_project_exists(
     return charity_project
 
 
-# еще одну проверку вынесем в отдельную корутину-валидатор
 async def check_name_duplicate(
         project_name: str,
         session: AsyncSession,

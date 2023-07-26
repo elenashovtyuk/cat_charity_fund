@@ -1,38 +1,28 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.db import get_async_session
-from app.crud.donation import donation_crud
-# имопртируем модель
-# from app.models.donation import Donation
-from app.models import User, CharityProject
-from app.schemas.donation import DonationCreate, DonationDB, DonationDBSuper
-from app.core.user import current_superuser, current_user
-from app.services.investing import investing
-from app.services.investing import (
-    investing,
-    get_uninvested_objects,
-)
-from app.api.exceptions import MyException
-from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
 
-# создаем объект роутера
+from fastapi import APIRouter, Depends
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.api.exceptions import MyException
+from app.core.db import get_async_session
+from app.core.user import current_superuser, current_user
+from app.crud.donation import donation_crud
+from app.models import CharityProject, User
+from app.schemas.donation import DonationCreate, DonationDB, DonationDBSuper
+from app.services.investing import get_uninvested_objects, investing
+
 router = APIRouter()
 
 
-# опишем 1-ый эндпоинт для получения списка всех пожертвований
-# просматривать все пожертвования может только суперюзер
 @router.get(
     '/',
-    # укажем схему ответа на запрос - должен вернуться список пожертвований
     response_model=Optional[List[DonationDBSuper]],
     response_model_exclude_none=True,
-    # запросить список всех пожертвований может только суперюзер
     dependencies=[Depends(current_superuser)],
 )
-# API-функция
 async def get_all_donations(
-    session: AsyncSession = Depends(get_async_session)
+        session: AsyncSession = Depends(get_async_session)
 ):
     """Только для суперюзеров."""
     return await donation_crud.get_multi(session)
@@ -40,50 +30,32 @@ async def get_all_donations(
 
 @router.get(
     '/my',
-    # укажем схему ответа
     response_model=Optional[List[DonationDB]],
-    # исключим пустые поля из ответа
     response_model_exclude_none=True,
-    # текущий пользователь может запросить инфо о своих пожертвованиях
     dependencies=[Depends(current_user)],
-    # укажем аттрибуты, которые нужно исключить из ответа
     response_model_exclude={
         'user_id'
     }
 )
-# API-функция, обработчик запроса
 async def get_all_user_donations(
-    session: AsyncSession = Depends(get_async_session),
-    user: User = Depends(current_user)
+        session: AsyncSession = Depends(get_async_session),
+        user: User = Depends(current_user)
 ):
-    # CRUD-функция
     return await donation_crud.get_user_donations(session=session, user=user)
 
 
-# опишем эндпоинт для операции POST
 @router.post(
     '/',
-    # укажем схему ответа
     response_model=DonationDB,
     response_model_exclude_none=True,
-    # сделать пожертвование может любой зарегистрированный пользователь
     dependencies=[Depends(current_user)],
 )
-# API-функция, обработчик POST-запроса
 async def create_donation(
-    # на вход функции подаем JSON-данные отправленные пользователем
-    donation: DonationCreate,
-    # указываем зависимость - т.е текущего юзера
-    # так как сделать пожертвование может любой зарегистрированный пользователь
-    user: User = Depends(current_user),
-    # указываем зависимость - сессию
-    session: AsyncSession = Depends(get_async_session)
+        donation: DonationCreate,
+        user: User = Depends(current_user),
+        session: AsyncSession = Depends(get_async_session)
 ):
-    # СRUD-функция
-    # вызываем объект donation_crud с методом
-    # для создания нового объекта пожертвования
     new_donation = await donation_crud.create(
-        # передаем JSON-данные из запроса, пользователя и сессию
         donation,
         session,
         user
