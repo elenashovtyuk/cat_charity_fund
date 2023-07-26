@@ -1,18 +1,13 @@
-# создадим отдельные Pydantic-схемы для разных эндпоинтов
-# так как для разных эндпоинтов разные поля являются обязательными или опциональными
-# чтобы легче было ориентироваться в названии схемы будем указывать
-# ее назначение
 from datetime import datetime
-from pydantic import BaseModel, Extra, Field, PositiveInt, validator
 from typing import Optional
-from app.constants import MAX_LENGTH, MIN_LENGTH, DEFAULT_INVESTING_AMOUNT
 
-# схема для создания проекта пожертвований
-# доп.свойства полей прописываем с помощью класса Field
+from pydantic import BaseModel, Extra, Field, PositiveInt, validator
+
+from app.constants import DEFAULT_INVESTING_AMOUNT, MAX_LENGTH, MIN_LENGTH
 
 
 class CharityProjectBase(BaseModel):
-    """Базовая схема объекта проекта."""
+    """Базовая схема проекта."""
     name: Optional[str] = Field(
         None,
         title='Название',
@@ -26,33 +21,9 @@ class CharityProjectBase(BaseModel):
         title = 'Базовая схема проекта'
 
 
-class CharityProjectCreate(BaseModel):
-    """Схема для создания нового проекта пожертвований."""
-    name: str = Field(
-        ...,
-        min_length=MIN_LENGTH,
-        max_length=MAX_LENGTH
-    )
-    description: str
-    full_amount: PositiveInt
-
-    class Config:
-        extra = Extra.forbid
-        schema_extra = {
-            'example': {
-                'name': 'QRKot',
-                'description': 'На вкусняшки котикам',
-                'full_amount': 2500,
-            }
-        }
-
-
-# создаем схему для обновления проекта пожертвований
-# так как обновлять можем каждое поле отдельно и все сразу, то
-#
 class CharityProjectUpdate(CharityProjectBase):
     """
-    Схема для изменения (полного или частичного)
+    Схема для обновления (полного или частичного)
     существующего проекта пожертвований.
     """
     class Config:
@@ -61,33 +32,27 @@ class CharityProjectUpdate(CharityProjectBase):
         extra = Extra.forbid
         schema_extra = {
             'example': {
-                'name': 'Нужны игрушки',
-                'description': 'Для всех котиков мира',
+                'name': 'Сбор на лекарства котикам',
+                'description': 'Чтобы все котики были здоровы',
                 'full_amount': 1000
             }
         }
-    # name: Optional[str] = Field(..., min_length=MIN_LENGTH, max_length=MAX_LENGTH)
-    # description: Optional[str]
-    # full_amount: Optional[PositiveInt]
-
-    # class Config:
-    #     min_anystr_length = 1
 
     @validator('name')
     def name_cannot_be_null(cls, value: str):
         if not value:
-            raise ValueError('Название проекта не может быть пустым!')
+            raise ValueError('Название проекта не может оставаться пустым!')
         return value
 
     @validator('description')
     def description_cannot_be_null(cls, value: str):
         if not value:
-            raise ValueError('Описание проекта не может быть пустым!')
+            raise ValueError('Описание проекта не может оставаться пустым!')
         return value
 
 
 class CharityProjectCreate(CharityProjectUpdate):
-    """Схема проекта для создания."""
+    """Схема для создания проекта."""
     name: str = Field(
         ...,
         title='Название',
@@ -98,30 +63,42 @@ class CharityProjectCreate(CharityProjectUpdate):
     full_amount: PositiveInt = Field(..., title='Требуемая сумма')
 
     class Config:
-        title = 'Схема проекта для создания'
+        title = 'Схема для создания проекта'
         extra = Extra.forbid
 
 
-# создаем схему, которая описывает объект
-# проекта пожертвований, полученный из БД
-# наследуем ее от схемы для создания нового проекта, чтобы не дублировать
-# код с повторяющимися полями(name, description, fuul_amount)
 class CharityProjectDB(CharityProjectCreate):
+    """Схема для получения проекта."""
     id: int = Field(
         ...,
         title='Порядковый номер'
     )
     invested_amount: int = Field(
-        DEFAULT_INVESTING_AMOUNT
+        DEFAULT_INVESTING_AMOUNT,
+        title='Сумма пожертвования'
     )
-    fully_invested: bool = Field(False)
+    fully_invested: bool = Field(
+        False,
+        title='Собрана нужная для закрытия сумма')
     create_date: datetime = Field(
         ...,
-        title='Дата открытия проекта'
+        title='Дата открытия проекта пожертвования'
     )
     close_date: Optional[datetime] = Field(
         None,
         title='Дата закрытия проекта')
 
     class Config:
+        title = 'Схема для получения проекта пожертвования'
         orm_mode = True
+        schema_extra = {
+            'example': {
+                'name': 'Котики - наши друзья',
+                'description': 'Поможем котикам вместе',
+                'full_amoun': 5000,
+                'id': 10,
+                'invested_amount': 300,
+                'fully_invested': 0,
+                'create_date': '2023-07-22T02:18:40.662286'
+            }
+        }
