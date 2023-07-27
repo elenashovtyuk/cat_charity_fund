@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.exceptions import MyException
+from app.api.exceptions import DuplicateDonateException
 from app.api.validators import (check_charity_project_exists,
                                 check_invested_amount, check_investing_funds,
                                 check_name_duplicate, check_project_open)
@@ -43,7 +43,7 @@ async def create_new_charity_project(
         await session.refresh(new_charity_project)
     except IntegrityError:
         await session.rollback()
-        raise MyException('Средства уже распределены')
+        raise DuplicateDonateException('Средства уже распределены')
     return new_charity_project
 
 

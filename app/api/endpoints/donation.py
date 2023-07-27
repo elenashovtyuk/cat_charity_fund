@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.exceptions import MyException
+from app.api.exceptions import DuplicateDonateException
 from app.core.db import get_async_session
 from app.core.user import current_superuser, current_user
 from app.crud.donation import donation_crud
@@ -67,5 +67,5 @@ async def create_donation(
         await session.refresh(new_donation)
     except IntegrityError:
         await session.rollback()
-        raise MyException('Средства уже распределены')
+        raise DuplicateDonateException('Средства уже распределены')
     return new_donation
